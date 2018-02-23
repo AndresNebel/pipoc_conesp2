@@ -26,7 +26,7 @@ public class endpoint {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getDataJSON() {
-		String nextStepUrl = getTransfmodeloURL("/endpoint");
+		String nextStepUrl = getTransfmodeloURL("/transfmodelo/pipoc/endpoint");
 		String responseStr = "";
 		HttpGet req = new HttpGet(nextStepUrl);
 		HttpClient httpClient = HttpClients.createDefault();
