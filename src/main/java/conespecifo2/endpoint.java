@@ -55,7 +55,12 @@ public class endpoint {
 		return "It works the conector!" + responseStr;*/
 		System.out.println("conespecif: Waiting for messages");
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
+		String hostRabbit = getenv("TRANSFMODELO_SERVICE_HOST");
+		String portRabbit = getenv("TRANSFMODELO_SERVICE_PORT");
+		System.out.println("transfmodelo: hostRabbit:"+hostRabbit+":"+portRabbit);
+		
+		factory.setHost(hostRabbit);
+		factory.setPort(Integer.parseInt(portRabbit));
 		Connection connection;
 		try {
 			connection = factory.newConnection();
