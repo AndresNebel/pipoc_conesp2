@@ -22,18 +22,20 @@ import java.io.IOException;
 
 @Path("endpoint")
 public class endpoint {
-
+	public static String xmlDummy = "<?xml version=\"1.0\" ?><test attrib=\"moretest\">Turn this to JSON</test>";
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getDataJSON() {
-		String nextStepUrl = getTransfmodeloURL("/transfmodelo/pipoc/endpoint");
+		String nextStepUrl = getTransfmodeloURL("/transfmodelo/pipoc/xml2json");
 		String responseStr = "";
-		HttpGet req = new HttpGet(nextStepUrl);
+		HttpPost req = new HttpPost(nextStepUrl);
 		HttpClient httpClient = HttpClients.createDefault();
-		HttpResponse respGwaas;		
+		HttpResponse internalResponse;		
 		try {
-			respGwaas = httpClient.execute(req);
-			responseStr = EntityUtils.toString(respGwaas.getEntity());
+			req.setEntity(new StringEntity(xmlDummy));
+			req.setHeader("Content-Type", "application/xml");
+			internalResponse = httpClient.execute(req);
+			responseStr = EntityUtils.toString(internalResponse.getEntity());
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -50,16 +52,21 @@ public class endpoint {
 				&& !isEmpty(getenv("TRANSFMODELO_SERVICE_PORT")))
 			baseUrl = "http://" + getenv("TRANSFMODELO_SERVICE_HOST") + ":" + System.getenv("TRANSFMODELO_SERVICE_PORT"); 
 		
+		System.out.println("1");
+		
 		if (isEmpty(baseUrl)) { // check system properties
 			baseUrl = System.getProperty("TRANSFMODELO_ENDPOINT");
+			System.out.println("2");
 		}
 		
 		if (isEmpty(baseUrl)) { // check environment variables
 			baseUrl = System.getenv("TRANSFMODELO_ENDPOINT");
+			System.out.println("3");
 		}
 		
 		if (isEmpty(baseUrl)) { // default value
 			baseUrl = "http://localhost:8080";
+			System.out.println("4");
 		} 
 		
 		return baseUrl + resourcePath;
@@ -69,14 +76,6 @@ public class endpoint {
 		return str == null || str.trim().length() == 0;
 	}
 	
-	protected String readStream(BufferedReader br) throws IOException{
-		StringBuilder sb=new StringBuilder();
-	    String read;
-		while((read=br.readLine()) != null) {
-		    sb.append(read);   
-		}
-		br.close();
-		return sb.toString();
-	}
+	
 	
 }
