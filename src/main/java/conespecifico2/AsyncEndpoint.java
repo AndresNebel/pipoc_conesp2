@@ -106,9 +106,5 @@ public class AsyncEndpoint implements  ServletContextListener {
 		public  String getNextStep(){
 			return getenv("nextstep");
 		}
-		
-		public  String getNextStepContentType(){
-			return getenv("nextstep_contenttype");
-		}
     }
 }

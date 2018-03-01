@@ -24,7 +24,11 @@ public class SyncEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String receive(String message) {
 		
-		return callSync2NextStep(message);
+
+		if (getNextStep() == "Fin")
+			return message;
+		else 	
+			return callSync2NextStep(message);
 		
 	}
 	
