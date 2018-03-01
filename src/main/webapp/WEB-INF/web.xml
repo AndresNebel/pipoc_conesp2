@@ -4,4 +4,7 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+    <listener>
+    <listener-class>conespecifico2.AsyncEndpoint</listener-class>
+  </listener>
 </web-app>

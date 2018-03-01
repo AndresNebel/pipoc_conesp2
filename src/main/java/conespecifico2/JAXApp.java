@@ -1,4 +1,4 @@
-package conespecifo2;
+package conespecifico2;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

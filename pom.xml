@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.conespecifo2</groupId>
-  <artifactId>conespecifo2</artifactId>
+  <groupId>com.conespecifico2</groupId>
+  <artifactId>conespecifico2</artifactId>
   <packaging>war</packaging>
   <version>0.0.1-SNAPSHOT</version>
   <name>conespecifo2 Maven Webapp</name>
@@ -34,9 +34,15 @@
 	    <artifactId>amqp-client</artifactId>
 	    <version>5.1.2</version>
 	</dependency>	
+	<dependency>
+	    <groupId>javax.servlet</groupId>
+	    <artifactId>javax.servlet-api</artifactId>
+	    <version>4.0.0</version>
+	    <scope>provided</scope>
+	</dependency>
   </dependencies>
   <build>
-    <finalName>conespecifo2</finalName>
+    <finalName>conespecifico2</finalName>
      <plugins>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
