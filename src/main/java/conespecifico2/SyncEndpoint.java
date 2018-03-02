@@ -25,7 +25,7 @@ public class SyncEndpoint {
 	public String receive(String message) {
 		
 
-		if (getNextStep() == "Fin")
+		if (getNextStep().equals("Fin"))
 			return message;
 		else 	
 			return callSync2NextStep(message);

@@ -65,7 +65,7 @@ public class AsyncEndpoint implements  ServletContextListener {
 					    String message = new String(body, "UTF-8");
 					    System.out.println(" [x] Received '" + message + "'");
 					    
-					    if (getNextStep() != "Fin") {
+					    if (!getNextStep().equals("Fin")) {
 					    	//En el con especifico, el mensaje reenvia al proximo sin procesar.
 					    	sendAsyncMessage2NextStep(message);
 					    }
