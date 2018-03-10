@@ -4,10 +4,20 @@ package conespecifico2;
 import static java.lang.System.getenv;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -17,19 +27,21 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
-public class AsyncEndpoint implements  ServletContextListener {
-	private Thread myThread = null;
+public class Connector implements  ServletContextListener {
+	private TimerTask pollTimer = null;
 	
 	public void contextInitialized(ServletContextEvent sce) {
-		if ((myThread == null) || (!myThread.isAlive())) {
-            myThread =  new Thread(new IncomingMsgProcess(), "IdleConnectionKeepAlive");
-            myThread.start();
-        }
+		
+		if (pollTimer == null) {
+			pollTimer = new PollTimerTask();
+			Timer timer = new Timer();
+			timer.schedule(pollTimer, 1000, (10 * 1000)); //Cada 10 segundos
+		}
     }
 
     public void contextDestroyed(ServletContextEvent sce){
         try {           
-            myThread.interrupt();
+        	System.out.println("Sistema2 poller has been shutdown");
         } catch (Exception ex) {}
     }
     
@@ -39,48 +51,23 @@ public class AsyncEndpoint implements  ServletContextListener {
     
     
     
-    
-    class IncomingMsgProcess implements Runnable {
+    class PollTimerTask extends TimerTask {
 
 		@Override
 		public void run() {
-			System.out.println("Conector Especifico 2: Inicializando Msg Endpoint..");
-			
-			ConnectionFactory factory = new ConnectionFactory();
-			String hostRabbit = getenv("OPENSHIFT_RABBITMQ_SERVICE_HOST");			
-			factory.setHost(hostRabbit);
-			
-			Connection connection;
+			HttpGet req = new HttpGet(getSistema2URL()); 
+			HttpClient httpClient = HttpClients.createDefault();
+			HttpResponse internalResponse;	
+			String responseStr = "";
 			try {
-				connection = factory.newConnection();
-				Channel channel = connection.createChannel();
-				channel.queueDeclare("conespecifico2", false, false, false, null);
-				
-				Consumer consumer = new DefaultConsumer(channel) {
-				  @Override
-				  public void handleDelivery(String consumerTag, Envelope envelope, 
-						  						AMQP.BasicProperties prop, byte[] body) 
-						  							throws IOException {
-				      
-					    String message = new String(body, "UTF-8");
-					    System.out.println(" [x] Received '" + message + "'");
-					    
-					    if (!getNextStep().equals("Fin")) {
-					    	//En el con especifico, el mensaje reenvia al proximo sin procesar.
-					    	sendAsyncMessage2NextStep(message);
-					    }
-					    
-				  }
-				};				
-				channel.basicConsume("conespecifico2", true, consumer);				
-				System.out.println("Conector Especifico 2: Todo listo. Esperando pedidos...");
-				
-			} catch (IOException | TimeoutException e) {					
+				internalResponse = httpClient.execute(req);
+				responseStr = EntityUtils.toString(internalResponse.getEntity());
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} 
-		
-		
+			sendAsyncMessage2NextStep(responseStr);
+		}
+	
 		public void sendAsyncMessage2NextStep(String message) {
 			ConnectionFactory factory = new ConnectionFactory();
 			String hostRabbit = getenv("OPENSHIFT_RABBITMQ_SERVICE_HOST");
@@ -105,6 +92,16 @@ public class AsyncEndpoint implements  ServletContextListener {
 		
 		public  String getNextStep(){
 			return getenv("nextstep");
+		}
+		
+		public  String getSistema2URL(){
+			String resourcePath = getenv("sistemaorigen_syncpath");
+			String baseUrl = "";
+			String originSystemName = getenv("sistemaorigen_nombre").toUpperCase();
+			if (!isEmpty(getenv(originSystemName+"_SERVICE_HOST")) && !isEmpty(getenv(originSystemName+"_SERVICE_PORT")))
+				baseUrl = "http://" + getenv(originSystemName+"_SERVICE_HOST") + ":" + System.getenv(originSystemName+"_SERVICE_PORT"); 
+					
+			return baseUrl + resourcePath;
 		}
     }
 }
