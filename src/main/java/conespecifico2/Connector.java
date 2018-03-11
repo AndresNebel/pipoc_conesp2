@@ -36,7 +36,7 @@ public class Connector implements  ServletContextListener {
 		if (pollTimer == null) {
 			pollTimer = new PollTimerTask();
 			Timer timer = new Timer();
-			timer.schedule(pollTimer, 1000, (10 * 1000)); //Cada 10 segundos
+			timer.schedule(pollTimer, 1000, (40 * 1000)); //Cada 10 segundos
 		}
     }
 
@@ -56,7 +56,9 @@ public class Connector implements  ServletContextListener {
 
 		@Override
 		public void run() {
-			HttpGet req = new HttpGet(getSistema2URL()); 
+			String url = getSistema2URL();
+			System.out.println("URL a INVOCAR:"+url);
+			HttpGet req = new HttpGet(url); 
 			HttpClient httpClient = HttpClients.createDefault();
 			HttpResponse internalResponse;	
 			String responseStr = "";
@@ -105,12 +107,12 @@ public class Connector implements  ServletContextListener {
 			System.out.println("resourcePath "+resourcePath);
 			System.out.println("originSystemName "+originSystemName);
 			System.out.println("host "+getenv(originSystemName+"_SERVICE_HOST"));
-			
+			System.out.println("************************");
 			Map<String,String> map = getenv();
 			for (String key : map.keySet()) {
 				System.out.println(key+"="+map.get(key));
 			}
-			
+			System.out.println("************************");
 			return baseUrl + resourcePath;
 		}
     }
