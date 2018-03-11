@@ -104,15 +104,6 @@ public class Connector implements  ServletContextListener {
 			if (!isEmpty(getenv(originSystemName+"_SERVICE_HOST")) && !isEmpty(getenv(originSystemName+"_SERVICE_PORT")))
 				baseUrl = "http://" + getenv(originSystemName+"_SERVICE_HOST") + ":" + System.getenv(originSystemName+"_SERVICE_PORT"); 
 			
-			System.out.println("resourcePath "+resourcePath);
-			System.out.println("originSystemName "+originSystemName);
-			System.out.println("host "+getenv(originSystemName+"_SERVICE_HOST"));
-			System.out.println("************************");
-			Map<String,String> map = getenv();
-			for (String key : map.keySet()) {
-				System.out.println(key+"="+map.get(key));
-			}
-			System.out.println("************************");
 			return baseUrl + resourcePath;
 		}
     }
