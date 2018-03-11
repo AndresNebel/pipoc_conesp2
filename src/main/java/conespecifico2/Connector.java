@@ -4,6 +4,7 @@ package conespecifico2;
 import static java.lang.System.getenv;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
@@ -100,7 +101,16 @@ public class Connector implements  ServletContextListener {
 			String originSystemName = getenv("sistemaorigen_nombre").toUpperCase();
 			if (!isEmpty(getenv(originSystemName+"_SERVICE_HOST")) && !isEmpty(getenv(originSystemName+"_SERVICE_PORT")))
 				baseUrl = "http://" + getenv(originSystemName+"_SERVICE_HOST") + ":" + System.getenv(originSystemName+"_SERVICE_PORT"); 
-					
+			
+			System.out.println("resourcePath "+resourcePath);
+			System.out.println("originSystemName "+originSystemName);
+			System.out.println("host "+getenv(originSystemName+"_SERVICE_HOST"));
+			
+			Map<String,String> map = getenv();
+			for (String key : map.keySet()) {
+				System.out.println(key+"="+map.get(key));
+			}
+			
 			return baseUrl + resourcePath;
 		}
     }
