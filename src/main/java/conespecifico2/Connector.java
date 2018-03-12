@@ -86,7 +86,7 @@ public class Connector implements  ServletContextListener {
 				
 				channel.basicPublish("", getNextStep(), null, message.getBytes("UTF-8"));
 				
-				System.out.println("Conector Especifico 2: Enviado!: "+message);	
+				System.out.println("Conector Especifico 2: Enviado!: "+message.substring(0, 200));	
 				
 			} catch (IOException | TimeoutException e) {					
 				e.printStackTrace();
