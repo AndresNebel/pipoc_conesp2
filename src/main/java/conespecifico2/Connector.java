@@ -4,7 +4,7 @@ package conespecifico2;
 import static java.lang.System.getenv;
 
 import java.io.IOException;
-import java.util.Map;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
@@ -15,18 +15,12 @@ import javax.servlet.ServletContextListener;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Consumer;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
 
 public class Connector implements  ServletContextListener {
 	private TimerTask pollTimer = null;
@@ -86,7 +80,7 @@ public class Connector implements  ServletContextListener {
 				
 				channel.basicPublish("", getNextStep(), null, message.getBytes("UTF-8"));
 				
-				System.out.println("Conector Especifico 2: Enviado!: "+message.substring(0, 200));	
+				System.out.println("Conector Especifico 2: Mensaje enviado. Tamaño: "+ message.length());	
 				
 			} catch (IOException | TimeoutException e) {					
 				e.printStackTrace();
