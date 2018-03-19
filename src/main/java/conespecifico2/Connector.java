@@ -30,7 +30,9 @@ public class Connector implements  ServletContextListener {
 		if (pollTimer == null) {
 			pollTimer = new PollTimerTask();
 			Timer timer = new Timer();
-			timer.schedule(pollTimer, 1000, (40 * 1000)); //Cada 10 segundos
+			
+			int freq = Integer.parseInt(getenv("poll_frequency_ms"));
+			timer.schedule(pollTimer, 1000, freq);
 		}
     }
 
