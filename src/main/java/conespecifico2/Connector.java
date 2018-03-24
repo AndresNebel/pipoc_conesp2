@@ -32,7 +32,7 @@ public class Connector implements  ServletContextListener {
 			Timer timer = new Timer();
 			
 			int freq = Integer.parseInt(getenv("poll_frequency_ms"));
-			timer.schedule(pollTimer, 1000, freq);
+			timer.schedule(pollTimer, 5000, freq);
 		}
     }
 
@@ -45,46 +45,66 @@ public class Connector implements  ServletContextListener {
     public static boolean isEmpty(String str) {
 		return str == null || str.trim().length() == 0;
 	}
-    
-    
+        
     
     class PollTimerTask extends TimerTask {
-
+    	public String urlSistema2 = "";
+    	public String hostRabbit = "";
+    	public String nextStep = "";
+    	
 		@Override
 		public void run() {
-			String url = getSistema2URL();
-			System.out.println("URL a INVOCAR:"+url);
-			HttpGet req = new HttpGet(url); 
+			if (urlSistema2.equals("")) {
+				urlSistema2 = getSistema2URL();
+			}
+			
+			HttpGet req = new HttpGet(urlSistema2); 
 			HttpClient httpClient = HttpClients.createDefault();
 			HttpResponse internalResponse;	
 			String responseStr = "";
 			try {
 				internalResponse = httpClient.execute(req);
 				responseStr = EntityUtils.toString(internalResponse.getEntity());
+				int statusCode = internalResponse.getStatusLine().getStatusCode();
+				if (statusCode == 200)
+					sendAsyncMessage2NextStep(responseStr);
+				else {
+					urlSistema2 = getSistema2URL(); //Refresco el host+port porque no anduvo bien
+					System.out.println("Respuesta de error desde S2: status" +statusCode);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			sendAsyncMessage2NextStep(responseStr);
+			
+				
 		}
 	
 		public void sendAsyncMessage2NextStep(String message) {
 			ConnectionFactory factory = new ConnectionFactory();
-			String hostRabbit = getenv("OPENSHIFT_RABBITMQ_SERVICE_HOST");
+			if (hostRabbit.equals("")) {
+				hostRabbit = getenv("OPENSHIFT_RABBITMQ_SERVICE_HOST");
+			}
+			if (nextStep.equals("")) {
+				nextStep = getNextStep();
+			}
 			factory.setHost(hostRabbit);
 			
 			Connection connection;
 			try {
 				connection = factory.newConnection();
 				Channel channel = connection.createChannel();
-				channel.queueDeclare(getNextStep(), false, false, false, null);
+				channel.queueDeclare(nextStep, false, false, false, null);
 				
-				System.out.println("Conector Especifico 2: Invocando al proximo paso de la SI: " + getNextStep());
+				//System.out.println("Conector Especifico 2: Invocando al proximo paso de la SI: " + getNextStep());
 				
-				channel.basicPublish("", getNextStep(), null, message.getBytes("UTF-8"));
+				channel.basicPublish("", nextStep, null, message.getBytes("UTF-8"));
 				
-				System.out.println("Conector Especifico 2: Mensaje enviado. Tamaño: "+ message.length());	
+				//System.out.println("Conector Especifico 2: Mensaje enviado. Tamaño: "+ message.length());	
 				
-			} catch (IOException | TimeoutException e) {					
+			} catch (IOException | TimeoutException e) {	
+				hostRabbit = getenv("OPENSHIFT_RABBITMQ_SERVICE_HOST"); //Refresco porque el envio no anduvo bien
+				nextStep = getNextStep();
+				sendAsyncMessage2NextStep(message); 
 				e.printStackTrace();
 			}
 		}
